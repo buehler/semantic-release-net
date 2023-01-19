@@ -13,6 +13,10 @@
     "dotnet",
     "nuget"
   ],
+  "repository": {
+    "url": "git@github.com:buehler/semantic-release-net.git",
+    "type": "git"
+  },
   "type": "module",
   "exports": {
     ".": {
