@@ -1,5 +1,5 @@
 {
-  "name": "semantic-release-dotnet",
+  "name": "semantic-release-net",
   "version": "0.0.0-development",
   "description": "semantic release plugin to deploy dotnet nuget packages to nuget sources.",
   "author": "Christoph Bühler",

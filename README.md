@@ -1,4 +1,4 @@
-# semantic release dotnet
+# semantic release net
 
 Semantic release plugin to publish .NET packages to NuGet sources.
 Performs the following actions:
