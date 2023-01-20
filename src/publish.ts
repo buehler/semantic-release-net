@@ -5,10 +5,12 @@ import { Context } from 'semantic-release';
 import { PluginConfig, SemanticReleaseError } from './utils.js';
 
 async function publish(args: string[]) {
-  const { stderr, exitCode } = await execa('dotnet', args);
+  const { stdout, stderr, exitCode } = await execa('dotnet', args);
   if (exitCode !== 0) {
     throw new SemanticReleaseError('dotnet nuget push failed', 'EDOTNETNUGETPUBLISH', stderr);
   }
+
+  return stdout;
 }
 
 /**
@@ -41,11 +43,13 @@ export default async function (
 
   if (!sources) {
     logger.info('No sources configured, using default to nuget.org with NUGET_TOKEN.');
-    await publish([...baseArgs, ...source('https://api.nuget.org/v3/index.json', env['NUGET_TOKEN'])]);
+    const output = await publish([...baseArgs, ...source('https://api.nuget.org/v3/index.json', env['NUGET_TOKEN'])]);
+    logger.debug(output);
   } else {
     for (const { url, apiKeyEnvVar } of sources) {
       logger.info(`Publishing to ${url} with key from ${apiKeyEnvVar}.`);
-      await publish([...baseArgs, ...source(url, env[apiKeyEnvVar])]);
+      const output = await publish([...baseArgs, ...source(url, env[apiKeyEnvVar])]);
+      logger.debug(output);
     }
   }
 }

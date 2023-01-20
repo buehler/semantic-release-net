@@ -16,7 +16,7 @@ export default async function (
     logger.info(`Preparing nuget packages. Store them in: ${dir}`);
     const version = nextRelease?.version ?? '0.0.0';
     const notes = (nextRelease?.notes ?? '').replaceAll(',', '%2c').replaceAll(';', '%3b').substring(0, 30000);
-    const { stderr, exitCode } = await execa('dotnet', [
+    const { stdout, stderr, exitCode } = await execa('dotnet', [
       'pack',
       '--configuration',
       configuration,
@@ -26,6 +26,7 @@ export default async function (
       `/property:Version=${version}`,
       `/property:PackageReleaseNotes='${notes}'`,
     ]);
+    logger.debug(stdout);
 
     for (const file of await readdir(dir)) {
       if (file.endsWith('.nupkg')) {
