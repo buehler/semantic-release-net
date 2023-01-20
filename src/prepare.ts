@@ -1,4 +1,6 @@
 import { execa } from 'execa';
+import { readdir } from 'fs/promises';
+import { join } from 'path';
 import { Context } from 'semantic-release';
 import { PluginConfig, SemanticReleaseError } from './utils.js';
 
@@ -10,7 +12,8 @@ export default async function (
   { logger, nextRelease }: Context
 ) {
   if (pack) {
-    logger.info('Preparing nuget packages');
+    const dir = join(process.cwd(), outDir);
+    logger.info(`Preparing nuget packages. Store them in: ${dir}`);
     const version = nextRelease?.version ?? '0.0.0';
     const notes = (nextRelease?.notes ?? '').replaceAll(',', '%2c').replaceAll(';', '%3b').substring(0, 30000);
     const { stderr, exitCode } = await execa('dotnet', [
@@ -18,11 +21,17 @@ export default async function (
       '--configuration',
       configuration,
       '--output',
-      outDir,
+      dir,
       ...additionalPackArgs,
       `/property:Version=${version}`,
       `/property:PackageReleaseNotes='${notes}'`,
     ]);
+
+    for (const file of await readdir(dir)) {
+      if (file.endsWith('.nupkg')) {
+        logger.info(`Created package: ${file}`);
+      }
+    }
 
     if (exitCode !== 0) {
       throw new SemanticReleaseError('dotnet pack command failed', 'EDOTNETPACK', stderr);

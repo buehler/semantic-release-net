@@ -1,5 +1,6 @@
 import { execa } from 'execa';
 import { readdir } from 'fs/promises';
+import { join } from 'path';
 import { Context } from 'semantic-release';
 import { PluginConfig, SemanticReleaseError } from './utils.js';
 
@@ -19,15 +20,17 @@ export default async function (
 ) {
   logger.info('Publish nuget packages.');
 
+  const dir = join(process.cwd(), outDir);
   const packages = [] as string[];
-  for (const file of await readdir(outDir)) {
+  for (const file of await readdir(dir)) {
     if (file.endsWith('.nupkg')) {
-      packages.push(file);
+      logger.debug(`Found package: ${file}`);
+      packages.push(join(dir, file));
     }
   }
 
   if (packages.length === 0) {
-    logger.error(`No packages found in ${outDir}`);
+    logger.error(`No packages found in ${dir}`);
     throw new SemanticReleaseError('No packages found', 'ENOARTIFACTS', `No packages found in ${outDir}`);
   }
 
