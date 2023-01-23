@@ -15,7 +15,14 @@ export default async function (
     const dir = join(env['GITHUB_WORKSPACE'] ?? process.cwd(), outDir);
     logger.info(`Preparing nuget packages. Store them in: ${dir}`);
     const version = nextRelease?.version ?? '0.0.0';
+    logger.debug(`New Version: ${version}`);
     const notes = (nextRelease?.notes ?? '').replaceAll(',', '%2c').replaceAll(';', '%3b').substring(0, 30000);
+    logger.debug(`Release Notes: ${notes}`);
+    logger.debug(
+      `Exec Command: dotnet pack --configuration ${configuration} --output ${dir} ${additionalPackArgs.join(
+        ' '
+      )} /property:Version=${version} /property:PackageReleaseNotes='${notes}' ${env['GITHUB_WORKSPACE'] ?? process.cwd()}`
+    );
     const { stdout, stderr, exitCode } = await execa('dotnet', [
       'pack',
       '--configuration',
