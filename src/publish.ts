@@ -1,11 +1,11 @@
-import { execa } from 'execa';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
+// @ts-expect-error
 import { Context } from 'semantic-release';
-import { PluginConfig, SemanticReleaseError } from './utils.js';
+import { exec, PluginConfig, SemanticReleaseError } from './utils.js';
 
 async function publish(args: string[]) {
-  const { stdout, stderr, exitCode } = await execa('dotnet', args);
+  const { stdout, stderr, exitCode } = await exec(args);
   if (exitCode !== 0) {
     throw new SemanticReleaseError('dotnet nuget push failed', 'EDOTNETNUGETPUBLISH', stderr);
   }

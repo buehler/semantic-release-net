@@ -1,8 +1,8 @@
-import { execa } from 'execa';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
+// @ts-expect-error
 import { Context } from 'semantic-release';
-import { PluginConfig, SemanticReleaseError } from './utils.js';
+import { exec, PluginConfig, SemanticReleaseError } from './utils.js';
 
 /**
  * Execute `dotnet pack` with the version to create the nuget packages.
@@ -23,7 +23,7 @@ export default async function (
         ' '
       )} /property:Version=${version} /property:PackageReleaseNotes='${notes}' ${env['GITHUB_WORKSPACE'] ?? process.cwd()}`
     );
-    const { stdout, stderr, exitCode } = await execa('dotnet', [
+    const { stdout, stderr, exitCode } = await exec([
       'pack',
       '--configuration',
       configuration,

@@ -1,3 +1,9 @@
+export async function exec(args: string[] = [], executable?: string) {
+  const { execa } = await import('execa');
+  const { stdout, stderr, exitCode } = await execa(executable ?? 'dotnet', args);
+  return { stdout, stderr, exitCode };
+}
+
 export type PluginConfig = {
   configuration?: 'Release' | 'Development';
   outDir?: string;

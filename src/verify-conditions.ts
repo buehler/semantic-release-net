@@ -1,6 +1,6 @@
+// @ts-expect-error
 import { Context } from 'semantic-release';
-import { PluginConfig, SemanticReleaseError } from './utils.js';
-import { execa } from 'execa';
+import { exec, PluginConfig, SemanticReleaseError } from './utils.js';
 
 /**
  * Verify that the dotnet executable is available and that the required environment variables are set.
@@ -8,7 +8,12 @@ import { execa } from 'execa';
  */
 export default async ({ sources }: PluginConfig, { logger, env }: Context) => {
   try {
-    const { stdout } = await execa('dotnet', ['--version']);
+    const { stdout, stderr, exitCode } = await exec(['--version']);
+    if (exitCode !== 0 || stderr !== '') {
+      logger.error(stderr);
+      throw new SemanticReleaseError('dotnet version command failed', 'EDOTNETEXECUTABLE', stderr);
+    }
+
     logger.info(`dotnet version: ${stdout}`);
   } catch (e: any) {
     logger.error(e);

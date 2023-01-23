@@ -17,15 +17,8 @@
     "url": "git@github.com:buehler/semantic-release-net.git",
     "type": "git"
   },
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "main": "dist/index.cjs",
+  "type": "commonjs",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "tsc -w",
