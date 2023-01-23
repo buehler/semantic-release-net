@@ -9,10 +9,10 @@ import { PluginConfig, SemanticReleaseError } from './utils.js';
  */
 export default async function (
   { pack = true, additionalPackArgs = [], outDir = './artifacts', configuration = 'Release' }: PluginConfig,
-  { logger, nextRelease }: Context
+  { logger, env, nextRelease }: Context
 ) {
   if (pack) {
-    const dir = join(process.cwd(), outDir);
+    const dir = join(env['GITHUB_WORKSPACE'] ?? process.cwd(), outDir);
     logger.info(`Preparing nuget packages. Store them in: ${dir}`);
     const version = nextRelease?.version ?? '0.0.0';
     const notes = (nextRelease?.notes ?? '').replaceAll(',', '%2c').replaceAll(';', '%3b').substring(0, 30000);
@@ -25,6 +25,7 @@ export default async function (
       ...additionalPackArgs,
       `/property:Version=${version}`,
       `/property:PackageReleaseNotes='${notes}'`,
+      env['GITHUB_WORKSPACE'] ?? process.cwd(),
     ]);
     logger.info(stdout);
 

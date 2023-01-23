@@ -22,7 +22,7 @@ export default async function (
 ) {
   logger.info('Publish nuget packages.');
 
-  const dir = join(process.cwd(), outDir);
+  const dir = join(env['GITHUB_WORKSPACE'] ?? process.cwd(), outDir);
   const packages = [] as string[];
   for (const file of await readdir(dir)) {
     if (file.endsWith('.nupkg')) {
