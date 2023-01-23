@@ -23,7 +23,7 @@ export default async function (
       '--output',
       dir,
       ...additionalPackArgs,
-      `/property:Version='${version}'`,
+      `/property:Version=${version}`,
       `/property:PackageReleaseNotes='${notes}'`,
     ]);
     logger.info(stdout);
