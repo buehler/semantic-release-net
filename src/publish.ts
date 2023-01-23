@@ -44,12 +44,12 @@ export default async function (
   if (!sources) {
     logger.info('No sources configured, using default to nuget.org with NUGET_TOKEN.');
     const output = await publish([...baseArgs, ...source('https://api.nuget.org/v3/index.json', env['NUGET_TOKEN'])]);
-    logger.debug(output);
+    logger.info(output);
   } else {
     for (const { url, apiKeyEnvVar } of sources) {
       logger.info(`Publishing to ${url} with key from ${apiKeyEnvVar}.`);
       const output = await publish([...baseArgs, ...source(url, env[apiKeyEnvVar])]);
-      logger.debug(output);
+      logger.info(output);
     }
   }
 }
