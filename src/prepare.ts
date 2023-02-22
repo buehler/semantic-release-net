@@ -19,7 +19,7 @@ export default async function (
     const notes = (nextRelease?.notes ?? '').replaceAll(',', '%2c').replaceAll(';', '%3b').substring(0, 30000);
     logger.debug(`Release Notes: ${notes}`);
     logger.debug(
-      `Exec Command: dotnet pack --configuration ${configuration} --output ${dir} ${additionalPackArgs.join(
+      `Exec Command: dotnet pack --configuration ${configuration} /p:PublishDir=${dir} ${additionalPackArgs.join(
         ' '
       )} /property:Version=${version} /property:PackageReleaseNotes='${notes}' ${env['GITHUB_WORKSPACE'] ?? process.cwd()}`
     );
@@ -27,8 +27,7 @@ export default async function (
       'pack',
       '--configuration',
       configuration,
-      '--output',
-      dir,
+      `/p:PublishDir=${dir}`,
       ...additionalPackArgs,
       `/property:Version=${version}`,
       `/property:PackageReleaseNotes='${notes}'`,
