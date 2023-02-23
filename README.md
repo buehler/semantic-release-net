@@ -9,6 +9,10 @@ Performs the following actions:
   version and release notes.
 - publish: Publishes the NuGet packages to the configured NuGet sources.
 
+Packages are created in their corresponding `bin/$(Configuration)/` folder.
+To enable / disable package creation, you can set the `<IsPackable>true</IsPackable>`
+option in the `.csproj` file.
+
 ## Configuration
 
 If _no_ sources are configured, the `NUGET_TOKEN` env var must be set.
@@ -17,7 +21,6 @@ The default nuget source (`https://api.nuget.org/v3/index.json`) is used in this
 ### Options
 
 - `configuration`: The configuration to use for `dotnet pack` (default: `Release`)
-- `outDir`: The output directory for the NuGet packages (default: `./artifacts`)
 - `pack`: Whether the plugin should run `dotnet pack` (default: `true`)
 - `additionalPackArgs`: Array of strings to pass as additional arguments to `dotnet pack`
 - `additionalPublishArgs`: Array of strings to pass as additional arguments to `dotnet nuget push`
@@ -29,7 +32,6 @@ The default nuget source (`https://api.nuget.org/v3/index.json`) is used in this
 // Type definition of the plugin options
 export type PluginConfig = {
   configuration?: 'Release' | 'Development';
-  outDir?: string;
   pack?: boolean;
   additionalPackArgs?: string[];
   sources?: { url: string; apiKeyEnvVar: string }[];
@@ -47,7 +49,6 @@ export type PluginConfig = {
       "semantic-release-dotnet",
       {
         "configuration": "Release",
-        "outDir": "./artifacts",
         "pack": true,
         "additionalPackArgs": ["/property:PackageIcon=icon.png"],
         "additionalPublishArgs": ["--skip-duplicates"]

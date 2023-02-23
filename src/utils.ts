@@ -6,7 +6,6 @@ export async function exec(args: string[] = [], executable?: string) {
 
 export type PluginConfig = {
   configuration?: 'Release' | 'Development';
-  outDir?: string;
   pack?: boolean;
   additionalPackArgs?: string[];
   sources?: { url: string; apiKeyEnvVar: string }[];

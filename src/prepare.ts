@@ -1,5 +1,4 @@
-import { readdir } from 'fs/promises';
-import { join } from 'path';
+import { glob } from 'glob';
 // @ts-expect-error
 import { Context } from 'semantic-release';
 import { exec, PluginConfig, SemanticReleaseError } from './utils.js';
@@ -8,18 +7,17 @@ import { exec, PluginConfig, SemanticReleaseError } from './utils.js';
  * Execute `dotnet pack` with the version to create the nuget packages.
  */
 export default async function (
-  { pack = true, additionalPackArgs = [], outDir = './artifacts', configuration = 'Release' }: PluginConfig,
+  { pack = true, additionalPackArgs = [], configuration = 'Release' }: PluginConfig,
   { logger, env, nextRelease }: Context
 ) {
   if (pack) {
-    const dir = join(env['GITHUB_WORKSPACE'] ?? process.cwd(), outDir);
-    logger.info(`Preparing nuget packages. Store them in: ${dir}`);
+    logger.info(`Preparing nuget packages.`);
     const version = nextRelease?.version ?? '0.0.0';
     logger.debug(`New Version: ${version}`);
     const notes = (nextRelease?.notes ?? '').replaceAll(',', '%2c').replaceAll(';', '%3b').substring(0, 30000);
     logger.debug(`Release Notes: ${notes}`);
     logger.debug(
-      `Exec Command: dotnet pack --configuration ${configuration} /p:PublishDir=${dir} ${additionalPackArgs.join(
+      `Exec Command: dotnet pack --configuration ${configuration} ${additionalPackArgs.join(
         ' '
       )} /property:Version=${version} /property:PackageReleaseNotes='${notes}' ${env['GITHUB_WORKSPACE'] ?? process.cwd()}`
     );
@@ -27,7 +25,6 @@ export default async function (
       'pack',
       '--configuration',
       configuration,
-      `/p:PublishDir=${dir}`,
       ...additionalPackArgs,
       `/property:Version=${version}`,
       `/property:PackageReleaseNotes='${notes}'`,
@@ -35,10 +32,11 @@ export default async function (
     ]);
     logger.info(stdout);
 
-    for (const file of await readdir(dir)) {
-      if (file.endsWith('.nupkg')) {
-        logger.info(`Created package: ${file}`);
-      }
+    const files = glob.sync(`**/bin/${configuration}/*.nupkg`, {
+      cwd: env['GITHUB_WORKSPACE'] ?? process.cwd(),
+    });
+    for (const file of files) {
+      logger.info(`Created package: ${file}`);
     }
 
     if (exitCode !== 0) {

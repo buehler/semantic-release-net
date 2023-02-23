@@ -15,5 +15,5 @@
     "esModuleInterop": true,
     "lib": ["ES2022"]
   },
-  "include": ["src/index.ts", "src/index.cts"]
+  "include": ["src/index.ts"]
 }

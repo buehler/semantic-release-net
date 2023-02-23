@@ -1,4 +1,4 @@
-import { readdir } from 'fs/promises';
+import { glob } from 'glob';
 import { join } from 'path';
 // @ts-expect-error
 import { Context } from 'semantic-release';
@@ -17,23 +17,24 @@ async function publish(args: string[]) {
  * Execute `dotnet nuget publish` with the found artifacts.
  */
 export default async function (
-  { additionalPublishArgs = [], outDir = './artifacts', sources }: PluginConfig,
+  { additionalPublishArgs = [], configuration = 'Release', sources }: PluginConfig,
   { logger, env }: Context
 ) {
   logger.info('Publish nuget packages.');
 
-  const dir = join(env['GITHUB_WORKSPACE'] ?? process.cwd(), outDir);
+  const dir = env['GITHUB_WORKSPACE'] ?? process.cwd();
+  const files = glob.sync(`**/bin/${configuration}/*.nupkg`, {
+    cwd: dir,
+  });
   const packages = [] as string[];
-  for (const file of await readdir(dir)) {
-    if (file.endsWith('.nupkg')) {
-      logger.debug(`Found package: ${file}`);
-      packages.push(join(dir, file));
-    }
+  for (const file of files) {
+    logger.debug(`Found package: ${file}`);
+    packages.push(join(dir, file));
   }
 
   if (packages.length === 0) {
     logger.error(`No packages found in ${dir}`);
-    throw new SemanticReleaseError('No packages found', 'ENOARTIFACTS', `No packages found in ${outDir}`);
+    throw new SemanticReleaseError('No packages found', 'ENOARTIFACTS', `No packages found in ${dir}`);
   }
 
   const baseArgs = ['nuget', 'push', ...packages, ...additionalPublishArgs];
